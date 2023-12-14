@@ -17,9 +17,10 @@ class MyTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final border = OutlineInputBorder(
-      borderSide: Divider.createBorderSide(context),
+      borderSide: Divider.createBorderSide(context,
+          color: const Color.fromARGB(65, 255, 255, 255)),
     );
-    return TextField(
+    return TextFormField(
       controller: controller,
       decoration: InputDecoration(
         hintText: hintText,
@@ -32,6 +33,27 @@ class MyTextField extends StatelessWidget {
       ),
       keyboardType: keyboardType,
       obscureText: isObscured,
+      validator: (value) {
+        if (value != null) {
+          if (value.isNotEmpty) {
+            if (hintText == "Password") {
+              if (value.length < 6) {
+                return "Password must be at least 6 characters long";
+              }
+            }
+            if (hintText == "Email") {
+              if (!value.contains("@") || !value.contains(".co")) {
+                return "Invalid email";
+              }
+            }
+            return null;
+          } else {
+            return "Enter $hintText";
+          }
+        } else {
+          return "Enter $hintText";
+        }
+      },
     );
   }
 }
