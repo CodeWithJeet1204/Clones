@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark(
         useMaterial3: true,
       ).copyWith(
+        colorScheme: const ColorScheme.dark(),
         scaffoldBackgroundColor: mobileBackgroundColor,
       ),
       routes: {

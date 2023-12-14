@@ -14,6 +14,8 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController bioController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
@@ -21,6 +23,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   void dispose() {
     super.dispose();
+    usernameController.dispose();
+    bioController.dispose();
     emailController.dispose();
     passwordController.dispose();
   }
@@ -45,6 +49,42 @@ class _SignUpScreenState extends State<SignUpScreen> {
               color: primaryColor,
             ),
             const SizedBox(height: 64),
+            // Profile Picture
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 64,
+                  backgroundColor: Colors.grey.shade400,
+                  backgroundImage: const NetworkImage(
+                    'https://datepsychology.com/wp-content/uploads/2022/09/gigachad.jpg',
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: IconButton.filled(
+                    iconSize: 30,
+                    onPressed: () {},
+                    icon: const Icon(Icons.camera_alt_outlined),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            // Username
+            MyTextField(
+              controller: usernameController,
+              hintText: "Username",
+              keyboardType: TextInputType.text,
+            ),
+            // Bio
+            const SizedBox(height: 24),
+            MyTextField(
+              controller: bioController,
+              hintText: "Bio",
+              keyboardType: TextInputType.text,
+            ),
+            const SizedBox(height: 24),
             // Email
             MyTextField(
               controller: emailController,
