@@ -3,8 +3,10 @@
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:instagram/models/posts.dart';
 import 'package:instagram/resources/storage_methods.dart';
+import 'package:instagram/widgets/snackbar.dart';
 import 'package:uuid/uuid.dart';
 
 class FirestoreMethods {
@@ -41,5 +43,22 @@ class FirestoreMethods {
       res = e.toString();
     }
     return res;
+  }
+
+  Future<void> likePost(
+      String postId, String uid, List likes, BuildContext context) async {
+    try {
+      if (likes.contains(uid)) {
+        await _firestore.collection('posts').doc(postId).update({
+          'likes': FieldValue.arrayRemove([uid]),
+        });
+      } else {
+        await _firestore.collection('posts').doc(postId).update({
+          'likes': FieldValue.arrayUnion([uid]),
+        });
+      }
+    } catch (e) {
+      mySnackBar(context, e.toString());
+    }
   }
 }

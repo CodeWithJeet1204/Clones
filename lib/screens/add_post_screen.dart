@@ -166,68 +166,76 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 ),
               ],
             ),
-            body: Column(
-              children: [
-                isLoading
-                    ? const LinearProgressIndicator()
-                    : const Padding(
-                        padding: EdgeInsets.only(top: 0),
-                      ),
-                const Divider(color: Colors.transparent),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            body: SingleChildScrollView(
+              child: SizedBox(
+                height: 700,
+                child: Column(
                   children: [
-                    CircleAvatar(
-                      backgroundImage: NetworkImage(user.photoUrl),
-                      backgroundColor: Colors.grey,
-                    ),
-                    Form(
-                      key: postKey,
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.45,
-                        child: TextFormField(
-                          controller: _descriptionController,
-                          decoration: const InputDecoration(
-                            hintText: "Write Caption",
-                            border: InputBorder.none,
+                    isLoading
+                        ? const LinearProgressIndicator()
+                        : const Padding(
+                            padding: EdgeInsets.only(top: 0),
                           ),
-                          validator: (value) {
-                            if (value != null) {
-                              if (value.isNotEmpty) {
-                                return null;
-                              } else {
-                                return "Please enter a caption";
-                              }
-                            } else {
-                              return "Please enter a caption";
-                            }
-                          },
-                          minLines: 1,
-                          maxLines: 8,
+                    const Divider(color: Colors.transparent),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(user.photoUrl),
+                          backgroundColor: Colors.grey,
                         ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 45,
-                      width: 45,
-                      child: AspectRatio(
-                        aspectRatio: 487 / 451,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: MemoryImage(_file!),
-                              fit: BoxFit.fill,
-                              alignment: FractionalOffset.topCenter,
+                        Form(
+                          key: postKey,
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            child: TextFormField(
+                              controller: _descriptionController,
+                              decoration: InputDecoration(
+                                hintText: "Write Caption",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: const BorderSide(
+                                    color: Colors.white,
+                                    width: 1,
+                                  ),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value != null) {
+                                  if (value.isNotEmpty) {
+                                    return null;
+                                  } else {
+                                    return "Please enter a caption";
+                                  }
+                                } else {
+                                  return "Please enter a caption";
+                                }
+                              },
+                              minLines: 8,
+                              maxLines: 8,
                             ),
                           ),
                         ),
+                        const Divider(),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    AspectRatio(
+                      aspectRatio: 487 / 451,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: MemoryImage(_file!),
+                            fit: BoxFit.fill,
+                            alignment: FractionalOffset.topCenter,
+                          ),
+                        ),
                       ),
                     ),
-                    const Divider(),
                   ],
                 ),
-              ],
+              ),
             ),
           );
   }
