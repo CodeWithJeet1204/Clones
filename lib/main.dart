@@ -1,12 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-// import 'package:instagram/responsive/mobile_screen_layout.dart';
-// import 'package:instagram/responsive/responsive_layout_screen.dart';
-// import 'package:instagram/responsive/web_screen_layout.dart';
+import 'package:instagram/providers/user_provider.dart';
+import 'package:instagram/responsive/mobile_screen_layout.dart';
+import 'package:instagram/responsive/responsive_layout_screen.dart';
+import 'package:instagram/responsive/web_screen_layout.dart';
 import 'package:instagram/screens/login_screen.dart';
 import 'package:instagram/screens/signup_screen.dart';
 import 'package:instagram/utils/colors.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,24 +34,63 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'JeetGigagram',
-      theme: ThemeData.dark(
-        useMaterial3: true,
-      ).copyWith(
-        colorScheme: const ColorScheme.dark(),
-        scaffoldBackgroundColor: mobileBackgroundColor,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => UserProvider(),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'JeetGigagram',
+        theme: ThemeData.dark(
+          useMaterial3: true,
+        ).copyWith(
+          colorScheme: const ColorScheme.dark(),
+          scaffoldBackgroundColor: mobileBackgroundColor,
+        ),
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/signup': (context) => const SignUpScreen(),
+          '/responsive': (context) => const ResponsiveLayout(
+                webScreenLayout: WebScreenLayout(),
+                mobileScreenLayout: MobileScreenLayout(),
+              ),
+        },
+        debugShowCheckedModeBanner: false,
+        home: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: ((context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.active) {
+              if (snapshot.hasData) {
+                return const ResponsiveLayout(
+                  webScreenLayout: WebScreenLayout(),
+                  mobileScreenLayout: MobileScreenLayout(),
+                );
+              } else if (snapshot.hasError) {
+                return const Center(
+                  child: Text("Some error occured\nClose & Open the app again"),
+                );
+              } else {
+                return const LoginScreen();
+              }
+            } else if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: primaryColor,
+                ),
+              );
+            } else {
+              return const SignUpScreen();
+            }
+          }),
+        ),
       ),
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/signup': (context) => const SignUpScreen(),
-      },
-      debugShowCheckedModeBanner: false,
-      // home: const ResponsiveLayout(
-      //   webScreenLayout: WebScreenLayout(),
-      //   mobileScreenLayout: MobileScreenLayout(),
-      // ),
-      home: const LoginScreen(),
     );
   }
 }
+
+
+// 3 methods for stream
+// 1. FirebaseAuth.instance.idTokenChanges() - runs every time user sign in or sign out
+// 2. FirebaseAuth.instance.userChanges() - > same as idTokenChanges, but also gets called when user changes email/password
+// 3. FirebaseAuth.instance.authStateChanges() -> Gets called only when user sign in/sign out

@@ -5,12 +5,22 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram/models/user.dart' as model;
 import 'package:instagram/resources/storage_methods.dart';
 import 'package:instagram/widgets/snackbar.dart';
 
 class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<model.User> getUserDetails() async {
+    User currentUser = _auth.currentUser!;
+
+    DocumentSnapshot snap =
+        await _firestore.collection('users').doc(currentUser.uid).get();
+
+    return model.User.fromSnap(snap);
+  }
 
   // Sign Up
   Future<String> signUpUser({
@@ -39,15 +49,20 @@ class AuthMethods {
           false,
         );
 
-        await _firestore.collection('users').doc(cred.user!.uid).set({
-          'username': username,
-          'uid': cred.user!.uid,
-          'email': email,
-          'bio': bio,
-          'followers': [],
-          'following': [],
-          'photoUrl': photoUrl,
-        });
+        model.User user = model.User(
+          username: username,
+          uid: cred.user!.uid,
+          email: email,
+          bio: bio,
+          followers: [],
+          following: [],
+          photoUrl: photoUrl,
+        );
+
+        // Add user to firebase
+        await _firestore.collection('users').doc(cred.user!.uid).set(
+              user.toJson(),
+            );
 
         mySnackBar(context, "Signed Up");
 
@@ -70,6 +85,31 @@ class AuthMethods {
     } catch (e) {
       mySnackBar(context, e.toString());
       res = e.toString();
+    }
+    return res;
+  }
+
+  // Logging in
+
+  Future<String> loginUser({
+    required String email,
+    required String password,
+    required BuildContext context,
+  }) async {
+    String res = "Some error occured";
+    try {
+      if (email.isNotEmpty || password.isNotEmpty) {
+        UserCredential cred = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        res = "Success";
+        return res;
+      }
+    } on FirebaseAuthException catch (e) {
+      mySnackBar(context, e.message!);
+    } catch (e) {
+      mySnackBar(context, e.toString());
     }
     return res;
   }

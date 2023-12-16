@@ -1,8 +1,7 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
-
-import 'dart:typed_data';
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_null_comparison
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:instagram/resources/auth_methods.dart';
@@ -25,6 +24,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   Uint8List? _image;
+  bool isImageTapped = false;
   bool isLoading = false;
   final formKey = GlobalKey<FormState>();
 
@@ -39,30 +39,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void selectImage() async {
     Uint8List im = await pickImage(ImageSource.gallery);
-    setState(() {
-      _image = im;
-    });
+    if (im == null) {
+      setState(() {
+        isImageTapped = false;
+      });
+    } else {
+      setState(() {
+        _image = im;
+        isImageTapped = true;
+      });
+    }
   }
 
   void signUpUser() async {
-    if (formKey.currentState!.validate()) {
-      setState(() {
-        isLoading = true;
-      });
-      await AuthMethods().signUpUser(
-        email: emailController.text,
-        password: passwordController.text,
-        username: usernameController.text,
-        bio: bioController.text,
-        file: _image!,
-        context: context,
-      );
+    if (isImageTapped) {
+      if (formKey.currentState!.validate()) {
+        setState(() {
+          isLoading = true;
+        });
+        String res = await AuthMethods().signUpUser(
+          email: emailController.text,
+          password: passwordController.text,
+          username: usernameController.text,
+          bio: bioController.text,
+          file: _image!,
+          context: context,
+        );
 
-      setState(() {
-        isLoading = false;
-      });
+        setState(() {
+          isLoading = false;
+        });
+
+        if (res != 'Success') {
+          mySnackBar(context, "Some Error Occured");
+        } else {
+          Navigator.of(context).pushReplacementNamed('/responsive');
+        }
+      } else {
+        mySnackBar(context, "Enter all the details");
+      }
     } else {
-      mySnackBar(context, "Enter all the details");
+      mySnackBar(context, "Pls Select An Image First");
     }
   }
 
@@ -84,41 +101,55 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 64),
+                  const SizedBox(height: 28),
                   // Image
                   SvgPicture.asset(
                     'assets/insta_logo.svg',
                     color: primaryColor,
                   ),
-                  const SizedBox(height: 64),
+                  const SizedBox(height: 48),
                   // Profile Picture
-                  Stack(
-                    children: [
-                      _image != null
-                          ? CircleAvatar(
-                              radius: 64,
-                              backgroundColor: Colors.grey.shade400,
-                              backgroundImage: MemoryImage(_image!),
-                            )
-                          : CircleAvatar(
-                              radius: 64,
-                              backgroundColor: Colors.grey.shade400,
-                              backgroundImage: const NetworkImage(
-                                'https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg',
+                  isImageTapped
+                      ? Stack(
+                          children: [
+                            _image != null
+                                ? CircleAvatar(
+                                    radius: 64,
+                                    backgroundColor: Colors.grey.shade400,
+                                    backgroundImage: MemoryImage(_image!),
+                                  )
+                                : CircleAvatar(
+                                    radius: 64,
+                                    backgroundColor: Colors.grey.shade400,
+                                    backgroundImage: const NetworkImage(
+                                      'https://t4.ftcdn.net/jpg/00/64/67/63/360_F_64676383_LdbmhiNM6Ypzb3FM4PPuFP9rHe7ri8Ju.jpg',
+                                    ),
+                                  ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: IconButton.filled(
+                                tooltip: "Change Profile Picture",
+                                iconSize: 30,
+                                onPressed: selectImage,
+                                icon: const Icon(Icons.camera_alt_outlined),
                               ),
                             ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: IconButton.filled(
+                          ],
+                        )
+                      : IconButton.filled(
                           tooltip: "Change Profile Picture",
-                          iconSize: 30,
+                          iconSize: 70,
+                          padding: const EdgeInsets.only(
+                            top: 22,
+                            right: 22,
+                            left: 22,
+                            bottom: 16,
+                          ),
                           onPressed: selectImage,
                           icon: const Icon(Icons.camera_alt_outlined),
                         ),
-                      ),
-                    ],
-                  ),
+
                   const SizedBox(height: 18),
                   // Username
                   Form(
@@ -159,7 +190,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   // Login
                   MyPrimaryButton(
                     buttonText: isLoading
-                        ? const CircularProgressIndicator(color: primaryColor)
+                        ? const Center(
+                            child:
+                                CircularProgressIndicator(color: primaryColor),
+                          )
                         : const Text("Sign Up"),
                     horizontal: 0,
                     vertical: 12,
@@ -170,6 +204,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     flex: 0,
                     child: Container(),
                   ),
+                  // Login
                   GestureDetector(
                     onTap: () {
                       Navigator.of(context).popAndPushNamed('/login');
@@ -196,7 +231,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ],
                     ),
                   ),
-                  // Sign Up
+                  const SizedBox(height: 24),
                 ],
               ),
             ),

@@ -1,9 +1,11 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:instagram/resources/auth_methods.dart';
 import 'package:instagram/utils/colors.dart';
 import 'package:instagram/widgets/button.dart';
+import 'package:instagram/widgets/snackbar.dart';
 import 'package:instagram/widgets/text_field.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -24,6 +26,27 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
     emailController.dispose();
     passwordController.dispose();
+  }
+
+  void onLoginUser() async {
+    if (formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
+      String res = await AuthMethods().loginUser(
+          context: context,
+          email: emailController.text,
+          password: passwordController.text);
+      if (res == "Success") {
+        mySnackBar(context, "Logged In Succesffully");
+        Navigator.of(context).pushReplacementNamed('/responsive');
+      } else {
+        mySnackBar(context, "Some Error Occured");
+      }
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -70,30 +93,24 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Login
                     MyPrimaryButton(
                       buttonText: isLoading
-                          ? const CircularProgressIndicator()
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                  color: primaryColor),
+                            )
                           : const Text("Login"),
                       horizontal: 0,
                       vertical: 12,
-                      onTap: () {
-                        if (formKey.currentState!.validate()) {
-                          setState(() {
-                            isLoading = true;
-                          });
-                          setState(() {
-                            isLoading = false;
-                          });
-                        }
-                      },
+                      onTap: onLoginUser,
                     ),
                   ],
                 ),
               ),
-
               const SizedBox(height: 48),
               Flexible(
                 flex: 2,
                 child: Container(),
               ),
+              // Sign Up
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).popAndPushNamed('/signup');
@@ -120,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-              // Sign Up
+              const SizedBox(height: 24),
             ],
           ),
         ),
