@@ -8,7 +8,7 @@ class Post {
   final DateTime datePublished;
   final String postUrl;
   final String profImg;
-  final likes;
+  final List likes;
 
   Post({
     required this.description,
@@ -26,7 +26,7 @@ class Post {
         'uid': uid,
         'username': username,
         'postId': postId,
-        'datePdatePublished': datePublished,
+        'datePublished': datePublished,
         'profImage': profImg,
         'postUrl': postUrl,
         'likes': likes,
