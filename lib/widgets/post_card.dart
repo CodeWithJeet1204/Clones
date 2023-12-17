@@ -109,6 +109,8 @@ class _PostCardState extends State<PostCard> {
                             TextButton(
                               onPressed: () {
                                 Navigator.of(context).pop();
+                                FirestoreMethods()
+                                    .deletePost(widget.snap['postId']);
                               },
                               child: const Text(
                                 "Delete",
@@ -268,11 +270,11 @@ class _PostCardState extends State<PostCard> {
                 ),
                 InkWell(
                   onTap: () {},
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 4),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
-                      "View All 200 Comments",
-                      style: TextStyle(
+                      "View All $commentLength Comments",
+                      style: const TextStyle(
                         fontSize: 14,
                         color: secondaryColor,
                       ),
