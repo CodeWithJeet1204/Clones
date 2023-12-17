@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:instagram/screens/profile_screen.dart';
 import 'package:instagram/utils/colors.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -38,6 +39,7 @@ class _SearchScreenState extends State<SearchScreen> {
           },
         ),
       ),
+      //TODO: Remove error
       body: isShowUser
           ? FutureBuilder(
               future: FirebaseFirestore.instance
@@ -54,18 +56,33 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: CircularProgressIndicator(),
                   );
                 }
-                return ListView.builder(
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundImage: NetworkImage(
-                            snapshot.data!.docs[index]['photoUrl'],
-                          ),
-                        ),
-                        title: Text(snapshot.data!.docs[index]['username']),
-                      );
-                    });
+                return snapshot.data!.docs.isEmpty
+                    ? const Center(
+                        child: Text("No such user"),
+                      )
+                    : ListView.builder(
+                        itemCount: snapshot.data!.docs.length,
+                        itemBuilder: (context, index) {
+                          return InkWell(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: ((context) => ProfileScreen(
+                                      uid: snapshot.data!.docs[index]['uid'])),
+                                ),
+                              );
+                            },
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                  snapshot.data!.docs[index]['photoUrl'],
+                                ),
+                              ),
+                              title:
+                                  Text(snapshot.data!.docs[index]['username']),
+                            ),
+                          );
+                        });
               },
             )
           : FutureBuilder(
