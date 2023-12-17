@@ -7,6 +7,7 @@ import 'package:instagram/responsive/mobile_screen_layout.dart';
 import 'package:instagram/responsive/responsive_layout_screen.dart';
 import 'package:instagram/responsive/web_screen_layout.dart';
 import 'package:instagram/screens/login_screen.dart';
+import 'package:instagram/screens/search_screen.dart';
 import 'package:instagram/screens/signup_screen.dart';
 import 'package:instagram/utils/colors.dart';
 import 'package:provider/provider.dart';
@@ -55,6 +56,7 @@ class MyApp extends StatelessWidget {
                 webScreenLayout: WebScreenLayout(),
                 mobileScreenLayout: MobileScreenLayout(),
               ),
+          '/search': (context) => const SearchScreen(),
         },
         debugShowCheckedModeBanner: false,
         home: StreamBuilder(
