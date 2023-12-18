@@ -32,15 +32,15 @@ class _FeedScreenState extends State<FeedScreen> {
                 color: primaryColor,
                 height: 32,
               ),
-              actions: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.messenger_outline),
-                ),
-              ],
             ),
       body: StreamBuilder(
-          stream: FirebaseFirestore.instance.collection('posts').snapshots(),
+          stream: FirebaseFirestore.instance
+              .collection('posts')
+              .orderBy(
+                'datePublished',
+                descending: true,
+              )
+              .snapshots(),
           builder: (
             context,
             AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
@@ -51,6 +51,7 @@ class _FeedScreenState extends State<FeedScreen> {
               );
             }
             return ListView.builder(
+              shrinkWrap: true,
               itemCount: snapshot.data!.docs.length,
               itemBuilder: ((context, index) {
                 return Container(

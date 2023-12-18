@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:instagram/screens/profile_screen.dart';
-import 'package:instagram/utils/colors.dart';
 import 'package:instagram/utils/global_variables.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -25,105 +24,142 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: mobileBackgroundColor,
-        title: TextFormField(
-          controller: searchController,
-          decoration: const InputDecoration(
-            hintText: "Search...",
-            border: InputBorder.none,
-          ),
-          onFieldSubmitted: (String _) {
-            setState(() {
-              isShowUser = true;
-            });
-          },
-        ),
-      ),
-      //TODO: Remove error
       body: isShowUser
-          ? FutureBuilder(
-              future: FirebaseFirestore.instance
-                  .collection('users')
-                  .where(
-                    'username',
-                    isGreaterThanOrEqualTo: searchController.text,
-                  )
-                  .get(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                return snapshot.data!.docs.isEmpty
-                    ? const Center(
-                        child: Text("No such user"),
-                      )
-                    : ListView.builder(
-                        itemCount: snapshot.data!.docs.length,
-                        itemBuilder: (context, index) {
-                          return InkWell(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: ((context) => ProfileScreen(
-                                      uid: snapshot.data!.docs[index]['uid'])),
+          ? SafeArea(
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      hintText: "Search...",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onFieldSubmitted: (String _) {
+                      setState(() {
+                        isShowUser = true;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: FutureBuilder(
+                      future: FirebaseFirestore.instance
+                          .collection('users')
+                          .where(
+                            'username'.toString(),
+                            isGreaterThanOrEqualTo:
+                                searchController.text.toString(),
+                          )
+                          .get(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>>
+                              snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        return snapshot.data!.docs.isEmpty
+                            ? const Center(
+                                child: Text("No such user"),
+                              )
+                            : ListView.builder(
+                                itemCount: snapshot.data!.docs.length,
+                                itemBuilder: (context, index) {
+                                  return InkWell(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: ((context) => ProfileScreen(
+                                              uid: snapshot.data!.docs[index]
+                                                  ['uid'])),
+                                        ),
+                                      );
+                                    },
+                                    child: ListTile(
+                                      leading: CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                          snapshot.data!.docs[index]
+                                              ['photoUrl'],
+                                        ),
+                                      ),
+                                      title: Text(snapshot.data!.docs[index]
+                                          ['username']),
+                                    ),
+                                  );
+                                });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : SafeArea(
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      hintText: "Search...",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onFieldSubmitted: (String _) {
+                      setState(() {
+                        isShowUser = true;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: FutureBuilder(
+                        future: FirebaseFirestore.instance
+                            .collection('posts')
+                            .get(),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>>
+                                snapshot) {
+                          if (!snapshot.hasData) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          return StaggeredGridView.countBuilder(
+                            crossAxisCount: 3,
+                            itemCount: snapshot.data!.docs.length,
+                            itemBuilder: ((context, index) {
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Image.network(
+                                  snapshot.data!.docs[index]['postUrl'],
+                                  fit: BoxFit.cover,
                                 ),
                               );
-                            },
-                            child: ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                  snapshot.data!.docs[index]['photoUrl'],
-                                ),
-                              ),
-                              title:
-                                  Text(snapshot.data!.docs[index]['username']),
-                            ),
+                            }),
+                            staggeredTileBuilder: ((index) {
+                              return MediaQuery.of(context).size.width >
+                                      webScreenSize
+                                  ? StaggeredTile.count(
+                                      index % 7 == 0 ? 1 : 1,
+                                      index % 7 == 0 ? 1 : 1,
+                                    )
+                                  : StaggeredTile.count(
+                                      index % 7 == 0 ? 2 : 1,
+                                      index % 7 == 0 ? 2 : 1,
+                                    );
+                              // return null;
+                            }),
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
                           );
-                        });
-              },
-            )
-          : FutureBuilder(
-              future: FirebaseFirestore.instance.collection('posts').get(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                return StaggeredGridView.countBuilder(
-                  crossAxisCount: 3,
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: ((context, index) {
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.network(
-                        snapshot.data!.docs[index]['postUrl'],
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  }),
-                  staggeredTileBuilder: ((index) {
-                    return MediaQuery.of(context).size.width > webScreenSize
-                        ? StaggeredTile.count(
-                            index % 7 == 0 ? 1 : 1,
-                            index % 7 == 0 ? 1 : 1,
-                          )
-                        : StaggeredTile.count(
-                            index % 7 == 0 ? 2 : 1,
-                            index % 7 == 0 ? 2 : 1,
-                          );
-                    // return null;
-                  }),
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
-                );
-              }),
+                        }),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }

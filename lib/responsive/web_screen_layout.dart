@@ -47,7 +47,6 @@ class _WebScreenLayoutState extends State<WebScreenLayout> {
         backgroundColor: webBackgroundColor,
         title: SvgPicture.asset(
           'assets/insta_logo.svg',
-          color: primaryColor,
           height: 32,
         ),
         actions: [
@@ -68,12 +67,6 @@ class _WebScreenLayoutState extends State<WebScreenLayout> {
             tooltip: "Add Post",
             icon: const Icon(Icons.add_circle_outline_outlined),
             color: _page == 2 ? primaryColor : secondaryColor,
-          ),
-          IconButton(
-            onPressed: () => navigationTapped(3),
-            tooltip: "Favorite",
-            icon: const Icon(Icons.favorite),
-            color: _page == 3 ? primaryColor : secondaryColor,
           ),
           IconButton(
             onPressed: () => navigationTapped(4),

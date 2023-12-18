@@ -6,6 +6,7 @@ import 'package:instagram/models/user.dart';
 import 'package:instagram/providers/user_provider.dart';
 import 'package:instagram/resources/firestore_methods.dart';
 import 'package:instagram/screens/comments_screen.dart';
+import 'package:instagram/screens/profile_screen.dart';
 import 'package:instagram/utils/colors.dart';
 import 'package:instagram/utils/global_variables.dart';
 import 'package:instagram/widgets/like_animation.dart';
@@ -28,6 +29,7 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   bool isLikeAnimating = false;
   int commentLength = 0;
+  bool isOriginalRatio = false;
 
   @override
   void initState() {
@@ -56,7 +58,6 @@ class _PostCardState extends State<PostCard> {
     final width = MediaQuery.of(context).size.width;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
         color: mobileBackgroundColor,
         border: Border.all(
@@ -66,79 +67,53 @@ class _PostCardState extends State<PostCard> {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16)
-                .copyWith(right: 0),
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
             // Header
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundImage: NetworkImage(
-                    widget.snap['profImage']!,
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 16, top: 4),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.snap['username'],
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ],
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileScreen(
+                      uid: widget.snap['uid'],
                     ),
                   ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: ((context) {
-                        return AlertDialog(
-                          title: const Text("Delete Post"),
-                          content: const Text(
-                              "Are you sure you want to delete this post\nThis can't be undone"),
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text("Cancel"),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                FirestoreMethods()
-                                    .deletePost(widget.snap['postId']);
-                              },
-                              child: const Text(
-                                "Delete",
-                                style: TextStyle(
-                                  color: Colors.red,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }),
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.delete,
-                    color: Color.fromARGB(168, 244, 67, 54),
+                );
+              },
+              child: Row(
+                children: [
+                  GestureDetector(
+                    child: CircleAvatar(
+                      radius: 16,
+                      backgroundImage: NetworkImage(
+                        widget.snap['profImage']!,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16, top: 4),
+                      child: Text(
+                        widget.snap['username'],
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
+          const SizedBox(height: 4),
           // Image
           GestureDetector(
+            onTap: () {
+              setState(() {
+                isOriginalRatio = !isOriginalRatio;
+              });
+            },
             onDoubleTap: () async {
               await FirestoreMethods().likePost(
                 widget.snap['postId'],
@@ -158,7 +133,7 @@ class _PostCardState extends State<PostCard> {
                   width: double.infinity,
                   child: Image.network(
                     widget.snap['postUrl'],
-                    fit: BoxFit.cover,
+                    fit: isOriginalRatio ? BoxFit.contain : BoxFit.cover,
                   ),
                 ),
                 AnimatedOpacity(
@@ -238,21 +213,6 @@ class _PostCardState extends State<PostCard> {
                   Icons.comment_outlined,
                 ),
               ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.share_outlined,
-                ),
-              ),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.bookmark_border_outlined),
-                  ),
-                ),
-              ),
             ],
           ),
 
@@ -274,7 +234,15 @@ class _PostCardState extends State<PostCard> {
                   ),
                 ),
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: ((context) => CommentsScreen(
+                              snap: widget.snap,
+                            )),
+                      ),
+                    );
+                  },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Text(
@@ -299,6 +267,9 @@ class _PostCardState extends State<PostCard> {
                 ),
               ],
             ),
+          ),
+          const Divider(
+            color: Color.fromARGB(255, 34, 34, 34),
           ),
         ],
       ),

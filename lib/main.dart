@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'JeetGigagram',
+        title: 'Jeetgram',
         theme: ThemeData.dark(
           useMaterial3: true,
         ).copyWith(
