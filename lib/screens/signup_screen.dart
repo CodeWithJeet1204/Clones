@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:instagram/resources/auth_methods.dart';
 import 'package:instagram/utils/colors.dart';
+import 'package:instagram/utils/global_variables.dart';
 import 'package:instagram/widgets/button.dart';
 import 'package:instagram/widgets/image_picker.dart';
 import 'package:instagram/widgets/snackbar.dart';
@@ -93,7 +94,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: SizedBox(
+          child: Container(
+            padding: MediaQuery.of(context).size.width > webScreenSize
+                ? EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width / 3)
+                : const EdgeInsets.symmetric(horizontal: 32),
             height: 1000,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),

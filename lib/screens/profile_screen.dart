@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram/resources/auth_methods.dart';
 import 'package:instagram/resources/firestore_methods.dart';
 import 'package:instagram/utils/colors.dart';
 import 'package:instagram/widgets/snackbar.dart';
@@ -123,12 +124,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  void onEditTap() {}
+  void signOut() async {
+    String res = await AuthMethods().signOut();
+    if (res == "success") {
+      mySnackBar(context, "Signed Out");
+    } else {
+      mySnackBar(context, res);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text("Profile"),
       ),
       body: isLoading
@@ -166,7 +175,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Expanded(child: Container()),
                           FirebaseAuth.instance.currentUser!.uid == widget.uid
                               ? InkWell(
-                                  onTap: onEditTap,
+                                  onTap: signOut,
                                   child: Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
@@ -178,7 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: const Text(
-                                      "Edit Profile",
+                                      "Sign Out",
                                       style: TextStyle(
                                         color: primaryColor,
                                         fontSize: 14,

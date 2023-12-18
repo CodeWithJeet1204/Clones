@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:instagram/screens/profile_screen.dart';
 import 'package:instagram/utils/colors.dart';
+import 'package:instagram/utils/global_variables.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -25,6 +26,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: mobileBackgroundColor,
         title: TextFormField(
           controller: searchController,
@@ -107,10 +109,16 @@ class _SearchScreenState extends State<SearchScreen> {
                     );
                   }),
                   staggeredTileBuilder: ((index) {
-                    return StaggeredTile.count(
-                      index % 7 == 0 ? 2 : 1,
-                      index % 7 == 0 ? 2 : 1,
-                    );
+                    return MediaQuery.of(context).size.width > webScreenSize
+                        ? StaggeredTile.count(
+                            index % 7 == 0 ? 1 : 1,
+                            index % 7 == 0 ? 1 : 1,
+                          )
+                        : StaggeredTile.count(
+                            index % 7 == 0 ? 2 : 1,
+                            index % 7 == 0 ? 2 : 1,
+                          );
+                    // return null;
                   }),
                   mainAxisSpacing: 8,
                   crossAxisSpacing: 8,
